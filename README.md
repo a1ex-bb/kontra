@@ -76,29 +76,37 @@ Say "kontra mode on" and ask a question. To change the debate, just ask in plain
 
 ## Examples
 
-Each prompt below is a real one. Open the toggle to see Kontra's actual answer (generated with Claude Opus 4.8). When several debaters are in the room, your assistant weighs their takes and gives you one recommendation.
+Each prompt is real. Open a toggle to see the actual reply you get back in the chat, after Kontra runs the debate behind the scenes and your assistant weighs the takes into one answer. Produced with Claude Opus 4.8.
 
 ### Product and engineering
 
 > kontra mode on. Set up three debaters: a paranoid security engineer, a ship-it product manager, and a user-obsessed designer. Should we launch onboarding without the email verification step to cut signup friction?
 
 <details>
-<summary>The debate</summary>
+<summary>The reply</summary>
 
-**Security engineer:** No. Unverified signups are an open door for fake accounts, credential stuffing, and spam, and the extra "signups" are partly garbage that poisons your metrics. Keep it, but move it off the critical path: let users in, then gate sending, payments, and sharing behind a verified email, with rate limits and disposable-domain blocking.
+**Verdict:** Do not drop email verification. Defer it instead.
 
-**Product manager:** Agree, with a guardrail. "No verification ever" is not the only alternative. Let users in instantly and verify lazily, gating high-risk actions behind a one-tap link. If fake-account or spam rates climb, pull verification earlier again.
+**Crux:** The friction win is real, but removing verification outright invites fake accounts and spam, and it silently breaks password resets and billing receipts, which users blame on you rather than their own typo. All three debaters landed on the same fix from different angles.
 
-**Designer:** Defer it, do not drop it. Unverified emails quietly break password resets and billing receipts, and the user blames you, not their typo. Let people in immediately, but keep verification required before anything depends on the address.
+**Shift:** I moved from "remove it" to "let people in instantly, then verify before anything sensitive."
+
+**Bottom line:** Ship the frictionless signup, but require a verified email before sending, payments, or sharing, via a one-tap link. Add rate limits and disposable-domain blocking, and watch your fake-account and email deliverability rates.
 
 </details>
 
 > kontra mode on. I'm about to add a nullable column and backfill it in the same migration to keep it simple. Anything I'm missing?
 
 <details>
-<summary>Kontra's take</summary>
+<summary>The reply</summary>
 
-Disagree. "One migration" is simpler to write but riskier to run: a backfill on a large table locks rows or runs long, turning a fast schema change into a dangerous transaction. Split it: add the column, then backfill in batches. If the table is small and the backfill is non-locking, one migration is fine.
+**Verdict:** Split it, unless the table is small.
+
+**Crux:** One migration is simpler to write but riskier to run. A backfill on a large table locks rows or runs long, which turns a fast schema change into a long, dangerous transaction.
+
+**Shift:** Held for small tables; changed my mind for anything sizeable.
+
+**Bottom line:** Add the nullable column in one migration, then backfill in batches in a separate step. If the table is small and the backfill is non-locking, doing both at once is fine.
 
 </details>
 
@@ -107,22 +115,30 @@ Disagree. "One migration" is simpler to write but riskier to run: a backfill on 
 > kontra mode on. Debate this as a hard-nosed CFO and a growth-obsessed head of sales, two rounds max: should we give a 500-seat prospect a free 3-month pilot to land the logo?
 
 <details>
-<summary>The debate</summary>
+<summary>The reply</summary>
 
-**CFO:** No, not free. "Free" anchors the deal at zero and trains procurement to discount, and three months on 500 seats is real cost with no committed conversion. Charge a refundable pilot fee with signed success criteria and an auto-convert clause. Skin in the game predicts adoption.
+**Verdict:** Run the pilot, but not for free.
 
-**Head of sales:** Yes, but never "free." Make it a paid pilot at 30 to 50% off, with an order form contingent on success criteria and an auto-convert clause. Free pilots make buyers undervalue you and stall procurement; a discounted paid pilot proves intent and protects your deal size.
+**Crux:** The CFO and the head of sales disagreed on everything except the core point: "free" anchors the deal at zero, trains procurement to discount, and gives you real cost with no committed conversion. They split only on the mechanism, a refundable fee versus a discounted paid pilot.
 
-_Both refuse "free" and converge on a paid pilot tied to success criteria._
+**Shift:** Moved from "free 3-month pilot" to "paid pilot tied to success criteria."
+
+**Bottom line:** Offer a discounted or refundable paid pilot with written success criteria, an auto-convert clause, and a named exec sponsor. If they sign a contract that activates on hitting the agreed metrics, the fee can flex.
 
 </details>
 
 > kontra mode on. I'm opening my cold outreach with "I hope this email finds you well." Here's the rest. Improve it.
 
 <details>
-<summary>Kontra's take</summary>
+<summary>The reply</summary>
 
-No. The phrase says nothing about the recipient or why you are writing; it is filler that pattern-matches to spam, and cold readers triage in two seconds. Lead with a specific, relevant first line that earns the next sentence. It is harmless, just wasted space.
+**Verdict:** Cut the opener.
+
+**Crux:** "I hope this email finds you well" says nothing about the recipient or why you are writing. It pattern-matches to spam, and cold readers decide whether to keep reading in about two seconds.
+
+**Shift:** Position held.
+
+**Bottom line:** Open with a specific, relevant line, a trigger, a detail about them, or the actual reason you are reaching out, so the first sentence earns the second. The well-wish is harmless, just wasted space.
 
 </details>
 
@@ -131,20 +147,30 @@ No. The phrase says nothing about the recipient or why you are writing; it is fi
 > kontra mode on. I'm going to buy a $1,500 espresso machine because I spend too much on coffee out. Sensible?
 
 <details>
-<summary>Kontra's take</summary>
+<summary>The reply</summary>
 
-The "save money" framing is the weak point. A $1,500 machine plus beans, a grinder, milk, and your time does not beat home drip if savings is the goal; you are buying a hobby and calling it thrift. It can pay off in about 18 months if you really drink two or more $6 lattes a day. Check your actual cafe spend, and be honest about whether you will still use it in year two, because most machines gather dust by month four.
+**Verdict:** Not as a money-saver.
+
+**Crux:** As pure thrift it does not hold up. The machine plus beans, a grinder, milk, and your time does not beat home drip. It only pays off if you genuinely buy two or more $6 lattes a day, where it can break even in roughly 18 months.
+
+**Shift:** Position held, unless your real cafe spend justifies it.
+
+**Bottom line:** Check your actual monthly cafe spend and daily count first. If the math works and you will still use it in year two, buy it as something you enjoy, not as savings. Most machines gather dust by month four.
 
 </details>
 
 > kontra mode on. Set up an optimist and a skeptic. Should I move to a new city for a fresh start?
 
 <details>
-<summary>The debate</summary>
+<summary>The reply</summary>
 
-**Optimist:** Move, boldly, but do not assume geography heals what is internal: habits, anxiety, and loneliness pack in your suitcase. A new environment genuinely rewires routines and opens opportunity, so go toward something concrete, a job, a community, a real reason. If you are fleeing rather than seeking, move your mindset first.
+**Verdict:** Move only if you can name a concrete reason.
 
-**Skeptic:** Move for an opportunity, not a "fresh start." Fresh-start thinking assumes your problems are geographic; they usually are not, and you will spend month three realizing you brought yourself along. Name the specific thing that would improve and could not improve where you are. If you can, go. If you cannot, you are fleeing.
+**Crux:** The optimist and the skeptic agreed that a "fresh start" by itself will not work: habits, anxiety, and loneliness travel with you. The optimist still backs a bold move; the skeptic wants proof it is not just avoidance.
+
+**Shift:** Moved from "move for a fresh start" to "move toward something specific."
+
+**Bottom line:** Name the one thing that would improve and could not improve where you are, a job, a person, a community, lower cost. If you can name it, go. If you cannot, you are fleeing, and the move will not fix it.
 
 </details>
 
