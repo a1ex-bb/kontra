@@ -73,7 +73,7 @@ const PROVIDERS: Record<string, ProviderDef> = {
   openai: {
     label: "OpenAI (GPT)",
     keyEnv: "OPENAI_API_KEY",
-    defaultModel: "gpt-4o",
+    defaultModel: "gpt-5.5",
     async complete({ model, system, user, apiKey, timeoutMs }) {
       const data = await postJson(
         "https://api.openai.com/v1/chat/completions",
@@ -94,7 +94,7 @@ const PROVIDERS: Record<string, ProviderDef> = {
   google: {
     label: "Google (Gemini)",
     keyEnv: "GEMINI_API_KEY",
-    defaultModel: "gemini-1.5-pro",
+    defaultModel: "gemini-3.5-flash",
     async complete({ model, system, user, apiKey, timeoutMs }) {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
         model

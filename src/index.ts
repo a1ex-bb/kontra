@@ -13,7 +13,7 @@ import {
 import { callDebater, type Debater, type TranscriptEntry } from "./debate.js";
 import { PROVIDER_NAMES, providerKeyEnv, resolveKey } from "./providers.js";
 
-const server = new McpServer({ name: "kontra", version: "0.2.0" });
+const server = new McpServer({ name: "kontra", version: "0.2.1" });
 
 const debaterInputSchema = z.object({
   name: z.string().min(1).describe("short unique label for this voice"),
@@ -32,23 +32,35 @@ function textResult(text: string, isError = false) {
 
 /** Setup instructions the assistant relays to the user when a key is missing. */
 function onboarding(providers: string[]): string {
-  const keyLines = providers.map((p) => `  - ${p}: ${providerKeyEnv(p)}`).join("\n");
-  const example = providerKeyEnv(providers[0]);
-  return [
-    "Kontra needs an API key before it can run. Ask the user to add it.",
+  // The common case is one provider (the default Claude debater): ask for that
+  // single key. Only list several if the user configured several providers.
+  const single = providers.length === 1;
+  const primaryEnv = providerKeyEnv(providers[0]);
+  const lines = single
+    ? [
+        `Kontra needs your ${providers[0]} API key before it can run. Ask the user to add it (do not ask them to paste it into the chat).`,
+        "",
+        `Set ${primaryEnv} in your MCP client config, then restart the client.`,
+      ]
+    : [
+        "Kontra needs an API key for each provider in the debate. Ask the user to add them (do not ask them to paste them into the chat).",
+        "",
+        "Set these in your MCP client config, then restart the client:",
+        ...providers.map((p) => `  - ${p}: ${providerKeyEnv(p)}`),
+      ];
+  lines.push(
     "",
-    "Set the key(s) for the configured debaters in your MCP client config, then restart the client:",
-    keyLines,
-    "",
-    "Example (Claude Desktop or Claude Code):",
+    "Example (Claude Desktop, Claude Code, Cursor, and other MCP clients):",
     '  "kontra": {',
     '    "command": "npx",',
     '    "args": ["-y", "kontra-mcp"],',
-    `    "env": { "${example}": "your-key-here" }`,
+    `    "env": { "${primaryEnv}": "your-key-here" }`,
     "  }",
     "",
-    "The key stays in the user's own config and is never sent through the chat.",
-  ].join("\n");
+    "Or install the one-click bundle and paste the key into the secure form.",
+    "The key stays on the user's machine and is never sent through the chat.",
+  );
+  return lines.join("\n");
 }
 
 server.registerTool(
