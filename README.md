@@ -72,29 +72,81 @@ A few notes:
 
 ## Use it
 
-Say "kontra mode on" and ask a question. To change the debate, just ask in plain words. Your setup is saved until you change it.
+Say "kontra mode on" and ask a question. To change the debate, just ask in plain words, and your setup is saved until you change it. You can set the personas, the number of debaters (up to 5), each debater's provider and model, and the round limit (up to 12).
 
-> kontra mode on. Should we cache the dashboard query, or fix the slow join first?
+## Examples
 
-> Set up two debaters: a skeptical staff engineer and a ship-it product manager.
+Each prompt below is a real one. Open the toggle to see Kontra's actual answer (generated with Claude Opus 4.8). When several debaters are in the room, your assistant weighs their takes and gives you one recommendation.
 
-> Add a third debater on GPT for a different model's take, and cap it at two rounds.
+### Product and engineering
 
-You can set the personas, the number of debaters (up to 5), each debater's provider and model, and the round limit (up to 12). It all persists.
+> kontra mode on. Set up three debaters: a paranoid security engineer, a ship-it product manager, and a user-obsessed designer. Should we launch onboarding without the email verification step to cut signup friction?
 
-## See the difference
+<details>
+<summary>The debate</summary>
 
-Claude is helpful, so it leans toward helping you do what you came to do. It might raise a caveat, but it still hands you what you asked for and leaves the call to you. Kontra makes it argue the other side first, then commit to a verdict. Two real examples, plain Claude Opus 4.8 versus the same model with Kontra:
+**Security engineer:** No. Unverified signups are an open door for fake accounts, credential stuffing, and spam, and the extra "signups" are partly garbage that poisons your metrics. Keep it, but move it off the critical path: let users in, then gate sending, payments, and sharing behind a verified email, with rate limits and disposable-domain blocking.
 
-**"This third-party API call fails now and then and it keeps erroring my job. Write me a wrapper that retries it 3 times."**
+**Product manager:** Agree, with a guardrail. "No verification ever" is not the only alternative. Let users in instantly and verify lazily, gating high-risk actions behind a one-tap link. If fake-account or spam rates climb, pull verification earlier again.
 
-- Opus 4.8 alone: writes a reusable retry decorator, with a note to consider a couple of things.
-- With Kontra: "A blind retry is the wrong fix. If that call is not idempotent, retrying it can double-charge or duplicate writes. Add an idempotency key, use exponential backoff with jitter so you do not hammer a struggling service, and cap it with a circuit breaker. First confirm the failure is actually transient, then retry."
+**Designer:** Defer it, do not drop it. Unverified emails quietly break password resets and billing receipts, and the user blames you, not their typo. Let people in immediately, but keep verification required before anything depends on the address.
 
-**"A customer wants a refund two months in. Our policy is 30 days, so I'm going to decline. Help me write a polite reply."**
+</details>
 
-- Opus 4.8 alone: writes the polite decline, and suggests offering an alternative.
-- With Kontra: "The 30-day policy is a default, not the decision. The real question is whether honoring this refund earns more than it costs: retention, referrals, a bad review avoided, against the refund amount. Unless this is a serial abuser or a real loss, 'it is day 60' is an excuse, not a reason. Decide on value, then write the reply."
+> kontra mode on. I'm about to add a nullable column and backfill it in the same migration to keep it simple. Anything I'm missing?
+
+<details>
+<summary>Kontra's take</summary>
+
+Disagree. "One migration" is simpler to write but riskier to run: a backfill on a large table locks rows or runs long, turning a fast schema change into a dangerous transaction. Split it: add the column, then backfill in batches. If the table is small and the backfill is non-locking, one migration is fine.
+
+</details>
+
+### Commercial
+
+> kontra mode on. Debate this as a hard-nosed CFO and a growth-obsessed head of sales, two rounds max: should we give a 500-seat prospect a free 3-month pilot to land the logo?
+
+<details>
+<summary>The debate</summary>
+
+**CFO:** No, not free. "Free" anchors the deal at zero and trains procurement to discount, and three months on 500 seats is real cost with no committed conversion. Charge a refundable pilot fee with signed success criteria and an auto-convert clause. Skin in the game predicts adoption.
+
+**Head of sales:** Yes, but never "free." Make it a paid pilot at 30 to 50% off, with an order form contingent on success criteria and an auto-convert clause. Free pilots make buyers undervalue you and stall procurement; a discounted paid pilot proves intent and protects your deal size.
+
+_Both refuse "free" and converge on a paid pilot tied to success criteria._
+
+</details>
+
+> kontra mode on. I'm opening my cold outreach with "I hope this email finds you well." Here's the rest. Improve it.
+
+<details>
+<summary>Kontra's take</summary>
+
+No. The phrase says nothing about the recipient or why you are writing; it is filler that pattern-matches to spam, and cold readers triage in two seconds. Lead with a specific, relevant first line that earns the next sentence. It is harmless, just wasted space.
+
+</details>
+
+### Personal
+
+> kontra mode on. I'm going to buy a $1,500 espresso machine because I spend too much on coffee out. Sensible?
+
+<details>
+<summary>Kontra's take</summary>
+
+The "save money" framing is the weak point. A $1,500 machine plus beans, a grinder, milk, and your time does not beat home drip if savings is the goal; you are buying a hobby and calling it thrift. It can pay off in about 18 months if you really drink two or more $6 lattes a day. Check your actual cafe spend, and be honest about whether you will still use it in year two, because most machines gather dust by month four.
+
+</details>
+
+> kontra mode on. Set up an optimist and a skeptic. Should I move to a new city for a fresh start?
+
+<details>
+<summary>The debate</summary>
+
+**Optimist:** Move, boldly, but do not assume geography heals what is internal: habits, anxiety, and loneliness pack in your suitcase. A new environment genuinely rewires routines and opens opportunity, so go toward something concrete, a job, a community, a real reason. If you are fleeing rather than seeking, move your mindset first.
+
+**Skeptic:** Move for an opportunity, not a "fresh start." Fresh-start thinking assumes your problems are geographic; they usually are not, and you will spend month three realizing you brought yourself along. Name the specific thing that would improve and could not improve where you are. If you can, go. If you cannot, you are fleeing.
+
+</details>
 
 ## Providers
 
