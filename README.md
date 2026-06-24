@@ -72,48 +72,29 @@ A few notes:
 
 ## Use it
 
-Say "kontra mode on" and ask something:
+Say "kontra mode on" and ask a question. To change the debate, just ask in plain words. Your setup is saved until you change it.
 
-> kontra mode on. Should we rewrite the service in Rust or stay on Go?
+> kontra mode on. Should we cache the dashboard query, or fix the slow join first?
 
-Want to change the setup? Just ask in plain words. Your changes are saved and used for every debate after that:
+> Set up two debaters: a skeptical staff engineer and a ship-it product manager.
 
-> Set up three debaters: a security engineer on Claude, a product lead on GPT, and a cost analyst on Gemini. Max 4 rounds.
+> Add a third debater on GPT for a different model's take, and cap it at two rounds.
 
-You can set and save:
+You can set the personas, the number of debaters (up to 5), each debater's provider and model, and the round limit (up to 12). It all persists.
 
-| What | Example |
-| --- | --- |
-| Personalities | "make the second one a blunt CFO" |
-| Number of debaters | "add a third debater" (up to 5) |
-| Provider and model | "put the analyst on gpt-5.5" |
-| Max rounds | "cap it at 3 rounds" (up to 12) |
+## See the difference
 
-## Examples
+Claude is helpful, so it leans toward helping you do what you came to do. It might raise a caveat, but it still hands you what you asked for and leaves the call to you. Kontra makes it argue the other side first, then commit to a verdict. Two real examples, plain Claude Opus 4.8 versus the same model with Kontra:
 
-Use Kontra right before you act: ship a plan, send a message, make a call. Ask for the other side first.
+**"This third-party API call fails now and then and it keeps erroring my job. Write me a wrapper that retries it 3 times."**
 
-Engineering:
+- Opus 4.8 alone: writes a reusable retry decorator, with a note to consider a couple of things.
+- With Kontra: "A blind retry is the wrong fix. If that call is not idempotent, retrying it can double-charge or duplicate writes. Add an idempotency key, use exponential backoff with jitter so you do not hammer a struggling service, and cap it with a circuit breaker. First confirm the failure is actually transient, then retry."
 
-> kontra mode on. My plan is to add a 5-minute cache on the product endpoint and invalidate it on write. Poke holes in it before I build it.
+**"A customer wants a refund two months in. Our policy is 30 days, so I'm going to decline. Help me write a polite reply."**
 
-> kontra mode on. I think the flaky test is a race condition in the setup hook. Challenge my diagnosis before I spend the afternoon on it.
-
-Sales and marketing:
-
-> kontra mode on. Here is the subject line and first sentence of our re-engagement email. Tear it apart before I send it to 8,000 users.
-
-> kontra mode on. A prospect wants 30% off for a one-year commitment and I want to say yes. Argue the other side.
-
-Product and operations:
-
-> kontra mode on. I want to pull SSO ahead of the dashboard redesign this sprint. Challenge that call.
-
-> kontra mode on. Here are the three action items from our outage postmortem. What did I miss?
-
-It works on personal calls too:
-
-> kontra mode on. Here is the message I am about to send to push back on a deadline. Make the case my manager will make.
+- Opus 4.8 alone: writes the polite decline, and suggests offering an alternative.
+- With Kontra: "The 30-day policy is a default, not the decision. The real question is whether honoring this refund earns more than it costs: retention, referrals, a bad review avoided, against the refund amount. Unless this is a serial abuser or a real loss, 'it is day 60' is an excuse, not a reason. Decide on value, then write the reply."
 
 ## Providers
 
@@ -149,10 +130,11 @@ npm run build      # compile TypeScript to dist/
 npm run bundle     # build kontra.mcpb for one-click install
 ```
 
-Try the tools in a browser with the MCP Inspector:
+Try the tools in a browser with the MCP Inspector. Set the key for whichever providers you want to exercise. Anthropic alone is enough for the default debater; add the others only if you configure debaters on them:
 
 ```sh
 ANTHROPIC_API_KEY=sk-ant-... npm run inspect
+# add OPENAI_API_KEY=... and/or GEMINI_API_KEY=... too if your debaters use them
 ```
 
 ## License
