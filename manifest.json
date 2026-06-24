@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "kontra",
   "display_name": "Kontra",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Adds AI challengers to your chat. Take a position, they debate it, you get a crisp synthesis.",
   "long_description": "Kontra adds one or more AI debaters to your chat. You take a position, they push back, ask questions, and concede good points until the debate is settled. Then your assistant replies with a short, structured summary. Debaters, models, and the round limit are configurable and saved. Works with Anthropic, OpenAI, and Google models. You bring your own API key.",
   "author": {

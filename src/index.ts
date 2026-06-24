@@ -13,7 +13,7 @@ import {
 import { callDebater, type Debater, type TranscriptEntry } from "./debate.js";
 import { PROVIDER_NAMES, providerKeyEnv, resolveKey } from "./providers.js";
 
-const server = new McpServer({ name: "kontra", version: "0.2.4" });
+const server = new McpServer({ name: "kontra", version: "0.2.5" });
 
 const debaterInputSchema = z.object({
   name: z.string().min(1).describe("short unique label for this voice"),
@@ -193,7 +193,15 @@ server.registerTool(
             "",
             "No preamble and no restating the question.",
           ].join("\n")
-        : "The debate continues. Answer the debaters' questions and points directly (you may ask questions back), then call challenge again with the full transcript. Do not synthesize yet.";
+        : [
+            "The debate continues. Before the next round, show the user a short, well-structured recap of what just happened, then continue.",
+            "",
+            "Recap shape:",
+            "- a one-line header for the round (for example 'Round 1').",
+            "- one tight bullet per key point or question this round raised, attributed by stance or substance, never by debater name.",
+            "",
+            "After the recap, answer those points directly (you may ask questions back), then call challenge again with the full transcript. Keep the recap crisp and skimmable. Do not write the final synthesis yet.",
+          ].join("\n");
 
     return jsonResult({ round, max_rounds: cap, status, responses, instruction }, allFailed);
   }
