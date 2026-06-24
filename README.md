@@ -1,6 +1,8 @@
 # Kontra
 
-Kontra adds a challenger to your AI chat. You take a position, one or more AI debaters push back, and after a few rounds your assistant gives you a short, clear answer. It runs as an MCP server. You bring your own API keys.
+The best ideas are forged under challenge. People know this: we argue, we push back, and what survives is sharper. An AI chat skips that step. It thinks on its own and tends to agree with you. Kontra puts the challenge back in. The moment you prompt, one or more AI debaters take the other side and argue it out with your assistant, so the answer you get has already been tested.
+
+It runs as an MCP server. You bring your own API keys.
 
 ## How it works
 
@@ -89,25 +91,29 @@ You can set and save:
 
 ## Examples
 
-Kontra is for any decision where you want the strongest version of the other side before you commit.
+Use Kontra right before you act: ship a plan, send a message, make a call. Ask for the other side first.
 
-Building and engineering:
+Engineering:
 
-> kontra mode on. We are a 6-person seed-stage team on a Postgres monolith. Do we split into services now, or will that slow us down before we have real scale?
+> kontra mode on. My plan is to add a 5-minute cache on the product endpoint and invalidate it on write. Poke holes in it before I build it.
 
-> kontra mode on. Our cloud bill is $14k a month at 200 paying customers. Spend a sprint cutting costs now, or keep shipping features and fix it after the raise?
+> kontra mode on. I think the flaky test is a race condition in the setup hook. Challenge my diagnosis before I spend the afternoon on it.
 
-Commercial and go-to-market:
+Sales and marketing:
 
-> kontra mode on. Set up two debaters: a growth lead who favors product-led self-serve, and an enterprise rep who wants to chase six-figure deals. Where do we focus next quarter?
+> kontra mode on. Here is the subject line and first sentence of our re-engagement email. Tear it apart before I send it to 8,000 users.
 
-> kontra mode on. Should we switch from per-seat to usage-based pricing? Churn is fine but expansion revenue is flat.
+> kontra mode on. A prospect wants 30% off for a one-year commitment and I want to say yes. Argue the other side.
 
-Personal and philosophical:
+Product and operations:
 
-> kontra mode on. I was offered a senior role at a bigger company for 40% more pay, but I would lose the autonomy I have now. Should I take it?
+> kontra mode on. I want to pull SSO ahead of the dashboard redesign this sprint. Challenge that call.
 
-> kontra mode on. Set up a Stoic and an Existentialist as the debaters. Is it better to chase a calling you might fail at, or a stable path you would be good at?
+> kontra mode on. Here are the three action items from our outage postmortem. What did I miss?
+
+It works on personal calls too:
+
+> kontra mode on. Here is the message I am about to send to push back on a deadline. Make the case my manager will make.
 
 ## Providers
 
