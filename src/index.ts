@@ -13,7 +13,7 @@ import {
 import { callDebater, type Debater, type TranscriptEntry } from "./debate.js";
 import { PROVIDER_NAMES, providerKeyEnv, resolveKey } from "./providers.js";
 
-const server = new McpServer({ name: "kontra", version: "0.2.3" });
+const server = new McpServer({ name: "kontra", version: "0.2.4" });
 
 const debaterInputSchema = z.object({
   name: z.string().min(1).describe("short unique label for this voice"),
@@ -184,14 +184,14 @@ server.registerTool(
       ? "Every debater failed to respond. Do not retry automatically. Tell the user what went wrong (see the error field on each debater) and how to fix it, then stop."
       : settled
         ? [
-            "The debate is settled. Reply to the user with a SHORT, skimmable synthesis (aim for under 150 words), in this exact structure:",
+            "The debate is settled. Write the final reply for the user. Give them the real insight from the debate, not just a verdict, but keep it short and well-structured (roughly 120 to 180 words). Two rules: do not use one-word labels like 'Verdict' or 'Crux', and never name the debaters, since their names are arbitrary labels; attribute points by their stance or substance instead (for example 'the case for shipping now', or 'the pushback').",
             "",
-            "**Verdict** - one sentence answering the question.",
-            "**Crux** - 1 to 3 bullets: the key disagreement(s) and how each resolved.",
-            "**Shift** - one line: what changed your view, or 'Position held.'",
-            "**Bottom line** - one or two sentences of concrete advice.",
+            "Use this shape:",
+            "**The debate** - the distinct positions and their strongest reasoning, one tight bullet each, so the user sees the actual thinking. Preserve the nuance; this is the most valuable part.",
+            "**Where it lands** - what held up under challenge, what you concede, and anything genuinely still open.",
+            "**Recommendation** - your specific, concrete next step.",
             "",
-            "No preamble, no restating the question, no filler. Keep every line tight.",
+            "No preamble and no restating the question.",
           ].join("\n")
         : "The debate continues. Answer the debaters' questions and points directly (you may ask questions back), then call challenge again with the full transcript. Do not synthesize yet.";
 

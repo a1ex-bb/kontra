@@ -10,7 +10,7 @@ It runs as an MCP server. You bring your own API keys.
 2. Your assistant writes its position and sends it to the debaters.
 3. Each debater replies in character with a stance and either "keep going" or "settled".
 4. Your assistant answers their points and runs more rounds until everyone is settled.
-5. Your assistant replies with a tight summary: the verdict, the crux, what changed, and the bottom line.
+5. Your assistant replies with a short, structured rundown: the positions and their strongest arguments, where the debate lands, and a recommendation.
 
 The debate runs for as many rounds as it needs. A round limit stops it from running forever.
 
@@ -76,103 +76,25 @@ Say "kontra mode on" and ask a question. To change the debate, just ask in plain
 
 ## Examples
 
-Each prompt is real. Open a toggle to see the actual reply you get back in the chat, after Kontra runs the debate behind the scenes and your assistant weighs the takes into one answer. Produced with Claude Opus 4.8.
+A few realistic prompts, across different kinds of work. The multi-debater ones show how you can set up a custom panel.
 
 ### Product and engineering
 
 > kontra mode on. Set up three debaters: a paranoid security engineer, a ship-it product manager, and a user-obsessed designer. Should we launch onboarding without the email verification step to cut signup friction?
 
-<details>
-<summary>The reply</summary>
-
-**Verdict:** Do not drop email verification. Defer it instead.
-
-**Crux:** The friction win is real, but removing verification outright invites fake accounts and spam, and it silently breaks password resets and billing receipts, which users blame on you rather than their own typo. All three debaters landed on the same fix from different angles.
-
-**Shift:** I moved from "remove it" to "let people in instantly, then verify before anything sensitive."
-
-**Bottom line:** Ship the frictionless signup, but require a verified email before sending, payments, or sharing, via a one-tap link. Add rate limits and disposable-domain blocking, and watch your fake-account and email deliverability rates.
-
-</details>
-
 > kontra mode on. I'm about to add a nullable column and backfill it in the same migration to keep it simple. Anything I'm missing?
-
-<details>
-<summary>The reply</summary>
-
-**Verdict:** Split it, unless the table is small.
-
-**Crux:** One migration is simpler to write but riskier to run. A backfill on a large table locks rows or runs long, which turns a fast schema change into a long, dangerous transaction.
-
-**Shift:** Held for small tables; changed my mind for anything sizeable.
-
-**Bottom line:** Add the nullable column in one migration, then backfill in batches in a separate step. If the table is small and the backfill is non-locking, doing both at once is fine.
-
-</details>
 
 ### Commercial
 
 > kontra mode on. Debate this as a hard-nosed CFO and a growth-obsessed head of sales, two rounds max: should we give a 500-seat prospect a free 3-month pilot to land the logo?
 
-<details>
-<summary>The reply</summary>
-
-**Verdict:** Run the pilot, but not for free.
-
-**Crux:** The CFO and the head of sales disagreed on everything except the core point: "free" anchors the deal at zero, trains procurement to discount, and gives you real cost with no committed conversion. They split only on the mechanism, a refundable fee versus a discounted paid pilot.
-
-**Shift:** Moved from "free 3-month pilot" to "paid pilot tied to success criteria."
-
-**Bottom line:** Offer a discounted or refundable paid pilot with written success criteria, an auto-convert clause, and a named exec sponsor. If they sign a contract that activates on hitting the agreed metrics, the fee can flex.
-
-</details>
-
 > kontra mode on. I'm opening my cold outreach with "I hope this email finds you well." Here's the rest. Improve it.
-
-<details>
-<summary>The reply</summary>
-
-**Verdict:** Cut the opener.
-
-**Crux:** "I hope this email finds you well" says nothing about the recipient or why you are writing. It pattern-matches to spam, and cold readers decide whether to keep reading in about two seconds.
-
-**Shift:** Position held.
-
-**Bottom line:** Open with a specific, relevant line, a trigger, a detail about them, or the actual reason you are reaching out, so the first sentence earns the second. The well-wish is harmless, just wasted space.
-
-</details>
 
 ### Personal
 
 > kontra mode on. I'm going to buy a $1,500 espresso machine because I spend too much on coffee out. Sensible?
 
-<details>
-<summary>The reply</summary>
-
-**Verdict:** Not as a money-saver.
-
-**Crux:** As pure thrift it does not hold up. The machine plus beans, a grinder, milk, and your time does not beat home drip. It only pays off if you genuinely buy two or more $6 lattes a day, where it can break even in roughly 18 months.
-
-**Shift:** Position held, unless your real cafe spend justifies it.
-
-**Bottom line:** Check your actual monthly cafe spend and daily count first. If the math works and you will still use it in year two, buy it as something you enjoy, not as savings. Most machines gather dust by month four.
-
-</details>
-
 > kontra mode on. Set up an optimist and a skeptic. Should I move to a new city for a fresh start?
-
-<details>
-<summary>The reply</summary>
-
-**Verdict:** Move only if you can name a concrete reason.
-
-**Crux:** The optimist and the skeptic agreed that a "fresh start" by itself will not work: habits, anxiety, and loneliness travel with you. The optimist still backs a bold move; the skeptic wants proof it is not just avoidance.
-
-**Shift:** Moved from "move for a fresh start" to "move toward something specific."
-
-**Bottom line:** Name the one thing that would improve and could not improve where you are, a job, a person, a community, lower cost. If you can name it, go. If you cannot, you are fleeing, and the move will not fix it.
-
-</details>
 
 ## Providers
 
