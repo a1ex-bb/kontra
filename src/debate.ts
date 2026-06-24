@@ -1,4 +1,4 @@
-import { providerDef, resolveKey } from "./providers.js";
+import { HttpError, providerDef, providerKeyEnv, resolveKey } from "./providers.js";
 
 export interface Debater {
   name: string;
@@ -20,6 +20,22 @@ export type Reply =
   | { agent: string; error: string };
 
 const TIMEOUT_MS = 60_000;
+
+/** Turn a raw failure into an actionable, user-facing message. */
+function describeError(err: unknown, debater: Debater): string {
+  if (err instanceof HttpError) {
+    const env = providerKeyEnv(debater.provider);
+    if (err.status === 401 || err.status === 403)
+      return `${debater.provider} rejected the API key (check ${env})`;
+    if (err.status === 404)
+      return `${debater.provider} has no model "${debater.model}" (set a valid model)`;
+    if (err.status === 429) return `${debater.provider} rate limit reached (try again shortly)`;
+    return `${debater.provider} request failed (HTTP ${err.status})`;
+  }
+  if (err instanceof Error && err.name === "AbortError")
+    return `timed out after ${TIMEOUT_MS / 1000}s`;
+  return err instanceof Error ? err.message : String(err);
+}
 
 function buildSystemPrompt(debater: Debater, finalRound: boolean): string {
   const lines = [
@@ -107,6 +123,7 @@ export async function callDebater(
       apiKey: key,
       timeoutMs: TIMEOUT_MS,
     });
+    if (!text.trim()) throw new Error("the model returned an empty response");
     const { stance, debate, body } = parseSignals(text);
     return {
       agent: debater.name,
@@ -115,12 +132,6 @@ export async function callDebater(
       debate: finalRound ? "settled" : debate,
     };
   } catch (err) {
-    const message =
-      err instanceof Error && err.name === "AbortError"
-        ? `timed out after ${TIMEOUT_MS / 1000}s`
-        : err instanceof Error
-          ? err.message
-          : String(err);
-    return { agent: debater.name, error: `${debater.name} failed: ${message}` };
+    return { agent: debater.name, error: `${debater.name}: ${describeError(err, debater)}` };
   }
 }

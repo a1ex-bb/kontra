@@ -1,0 +1,66 @@
+{
+  "manifest_version": "0.3",
+  "name": "kontra",
+  "display_name": "Kontra",
+  "version": "0.2.0",
+  "description": "Adds AI challengers to your chat. Take a position, they debate it, you get a crisp synthesis.",
+  "long_description": "Kontra adds one or more AI debaters to your chat. You take a position, they push back, ask questions, and concede good points until the debate is settled. Then your assistant replies with a short, structured summary. Debaters, models, and the round limit are configurable and saved. Works with Anthropic, OpenAI, and Google models. You bring your own API key.",
+  "author": {
+    "name": "a1ex-bb",
+    "url": "https://github.com/a1ex-bb"
+  },
+  "homepage": "https://github.com/a1ex-bb/kontra",
+  "documentation": "https://github.com/a1ex-bb/kontra#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/a1ex-bb/kontra"
+  },
+  "license": "MIT",
+  "keywords": ["debate", "challenger", "ai", "claude", "openai", "gemini"],
+  "server": {
+    "type": "node",
+    "entry_point": "dist/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/dist/index.js"],
+      "env": {
+        "ANTHROPIC_API_KEY": "${user_config.anthropic_api_key}",
+        "OPENAI_API_KEY": "${user_config.openai_api_key}",
+        "GEMINI_API_KEY": "${user_config.gemini_api_key}"
+      }
+    }
+  },
+  "tools": [
+    { "name": "debate_status", "description": "Show the saved setup and which API keys are set." },
+    { "name": "configure_debate", "description": "Change and save the debaters and round limit." },
+    { "name": "challenge", "description": "Run a debate round on the host's position." }
+  ],
+  "user_config": {
+    "anthropic_api_key": {
+      "type": "string",
+      "title": "Anthropic API key",
+      "description": "Used for Claude debaters (the default). Create one at console.anthropic.com. Leave blank if you only use other providers.",
+      "sensitive": true,
+      "required": false
+    },
+    "openai_api_key": {
+      "type": "string",
+      "title": "OpenAI API key",
+      "description": "Optional. Only needed if a debater uses an OpenAI (GPT) model.",
+      "sensitive": true,
+      "required": false
+    },
+    "gemini_api_key": {
+      "type": "string",
+      "title": "Google Gemini API key",
+      "description": "Optional. Only needed if a debater uses a Google (Gemini) model.",
+      "sensitive": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "runtimes": {
+      "node": ">=18"
+    }
+  }
+}

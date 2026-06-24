@@ -4,3 +4,4 @@ dist/
 .mcp.json
 kontra.config.json
 .claude/settings.local.json
+*.mcpb

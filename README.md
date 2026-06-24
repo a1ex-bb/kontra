@@ -1,24 +1,23 @@
 # Kontra
 
-Kontra adds a challenger to your AI chat. You take a position, and one or more AI debaters push back. They ask questions, concede good points, and argue until the debate is settled. Then your assistant gives you a short, clear summary and a final answer.
+Kontra adds a challenger to your AI chat. You take a position, one or more AI debaters push back, and after a few rounds your assistant gives you a short, clear answer. It runs as an MCP server. You bring your own API keys.
 
-It runs as an MCP server. You bring your own API keys.
+## Install
 
-## How it works
+### Easiest: one click (Claude Desktop)
 
-1. You turn on kontra mode and ask a question.
-2. Your assistant writes its position and sends it to the debaters.
-3. Each debater replies in character with a stance and either "keep going" or "settled".
-4. Your assistant answers their points and runs more rounds until everyone is settled.
-5. Your assistant replies with a tight summary: the verdict, the crux, what changed, and the bottom line.
+No Node, no config files, no terminal.
 
-The debate runs for as many rounds as it needs. A round limit stops it from running forever.
+1. Download `kontra.mcpb` from the [latest release](https://github.com/a1ex-bb/kontra/releases/latest).
+2. Open Claude Desktop, go to Settings, then Extensions.
+3. Drag `kontra.mcpb` into the window (or double-click the file).
+4. Paste your API key into the box when asked, and turn it on.
 
-## Setup
+Claude Desktop bundles everything and stores your key securely.
 
-You need Node 18 or newer and at least one API key.
+### Manual (Claude Code and other MCP clients)
 
-Add Kontra to your MCP client config (for example Claude Desktop or Claude Code):
+Needs Node 18 or newer. Add this to your MCP client config, then restart the client:
 
 ```json
 {
@@ -32,11 +31,17 @@ Add Kontra to your MCP client config (for example Claude Desktop or Claude Code)
 }
 ```
 
-Restart your client. That is it. Out of the box you get one debater (a ruthless contrarian on Claude Opus 4.8).
+Either way, you start with one debater (a ruthless contrarian on Claude Opus 4.8). If a key is missing, Kontra tells your assistant exactly what to add, so you get prompted right in the chat. Your keys stay on your machine and are never sent through the chat.
 
-If you forget the key, Kontra tells your assistant exactly what to add, so you get prompted right in the chat.
+## How it works
 
-Your keys stay in your own config and are never sent through the chat.
+1. You turn on kontra mode and ask a question.
+2. Your assistant writes its position and sends it to the debaters.
+3. Each debater replies in character with a stance and either "keep going" or "settled".
+4. Your assistant answers their points and runs more rounds until everyone is settled.
+5. Your assistant replies with a tight summary: the verdict, the crux, what changed, and the bottom line.
+
+The debate runs for as many rounds as it needs. A round limit stops it from running forever.
 
 ## Use it
 
@@ -59,7 +64,7 @@ You can set and save:
 
 ## Providers
 
-Pick any debater's provider. Set the matching key in your config.
+Pick any debater's provider. Set the matching key (in the one-click form, or as an env var).
 
 | Provider | API key | Example models |
 | --- | --- | --- |
@@ -85,7 +90,8 @@ Kontra saves your setup to `~/.kontra/config.json`. Point it somewhere else with
 git clone https://github.com/a1ex-bb/kontra.git
 cd kontra
 npm install
-npm run build
+npm run build      # compile TypeScript to dist/
+npm run bundle     # build kontra.mcpb for one-click install
 ```
 
 Try the tools in a browser with the MCP Inspector:

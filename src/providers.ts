@@ -18,6 +18,17 @@ interface ProviderDef {
 
 const MAX_TOKENS = 1024;
 
+/** An HTTP error that carries the status code so callers can give a friendly hint. */
+export class HttpError extends Error {
+  constructor(
+    readonly status: number,
+    message: string
+  ) {
+    super(message);
+    this.name = "HttpError";
+  }
+}
+
 async function postJson(
   url: string,
   headers: Record<string, string>,
@@ -34,7 +45,7 @@ async function postJson(
       signal: controller.signal,
     });
     const text = await res.text();
-    if (!res.ok) throw new Error(`HTTP ${res.status}: ${text.slice(0, 300)}`);
+    if (!res.ok) throw new HttpError(res.status, `HTTP ${res.status}: ${text.slice(0, 300)}`);
     return JSON.parse(text);
   } finally {
     clearTimeout(timer);
@@ -69,7 +80,7 @@ const PROVIDERS: Record<string, ProviderDef> = {
         { authorization: `Bearer ${apiKey}` },
         {
           model,
-          max_tokens: MAX_TOKENS,
+          max_completion_tokens: MAX_TOKENS,
           messages: [
             { role: "system", content: system },
             { role: "user", content: user },
