@@ -2,7 +2,7 @@
 
 Kontra adds a challenger to your AI chat. You take a position, and one or more AI debaters push back. They ask questions, concede good points, and argue until the debate is settled. Then your assistant gives you a short, clear summary and a final answer.
 
-It runs as an MCP server. You bring your own API key.
+It runs as an MCP server. You bring your own API keys.
 
 ## How it works
 
