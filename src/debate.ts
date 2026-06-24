@@ -1,8 +1,9 @@
-import { getProvider } from "./providers.js";
+import { providerDef, resolveKey } from "./providers.js";
 
 export interface Debater {
   name: string;
   persona: string;
+  provider: string;
   model: string;
 }
 
@@ -19,33 +20,6 @@ export type Reply =
   | { agent: string; error: string };
 
 const TIMEOUT_MS = 60_000;
-const PROVIDER = "anthropic";
-const API_KEY_ENV = "ANTHROPIC_API_KEY";
-
-/** Default model for any debater that does not name its own. Override with KONTRA_MODEL. */
-export const DEFAULT_MODEL = process.env.KONTRA_MODEL?.trim() || "claude-sonnet-4-6";
-
-export const DEFAULT_DEBATERS: Debater[] = [
-  {
-    name: "kontra",
-    persona:
-      "A ruthless contrarian. Attacks the strongest assumption first. Concise, never hedges.",
-    model: DEFAULT_MODEL,
-  },
-];
-
-export const DEFAULT_MAX_ROUNDS = 6;
-export const MAX_ROUNDS_CAP = 12;
-export const MAX_DEBATERS = 5;
-
-/** The user's own key, read from the environment. Never accepted through chat. */
-export function resolveApiKey(): string | undefined {
-  const value = process.env[API_KEY_ENV];
-  if (!value || /^\$\{.*\}$/.test(value)) return undefined;
-  return value;
-}
-
-export const apiKeyHint = `set ${API_KEY_ENV} in your MCP client config`;
 
 function buildSystemPrompt(debater: Debater, finalRound: boolean): string {
   const lines = [
@@ -116,19 +90,21 @@ function parseSignals(text: string): {
 
 export async function callDebater(
   debater: Debater,
-  apiKey: string,
   topic: string,
   position: string,
   transcript: TranscriptEntry[],
   finalRound: boolean
 ): Promise<Reply> {
+  const { keyEnv, key } = resolveKey(debater.provider);
+  if (!key) {
+    return { agent: debater.name, error: `${debater.name}: no ${debater.provider} key (set ${keyEnv})` };
+  }
   try {
-    const provider = getProvider(PROVIDER);
-    const text = await provider.complete({
+    const text = await providerDef(debater.provider).complete({
       model: debater.model,
       system: buildSystemPrompt(debater, finalRound),
-      messages: [{ role: "user", content: buildUserMessage(topic, position, transcript) }],
-      apiKey,
+      user: buildUserMessage(topic, position, transcript),
+      apiKey: key,
       timeoutMs: TIMEOUT_MS,
     });
     const { stance, debate, body } = parseSignals(text);

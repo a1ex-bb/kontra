@@ -3,34 +3,52 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import {
-  callDebater,
-  DEFAULT_DEBATERS,
+  applyConfig,
+  configLocation,
   DEFAULT_MAX_ROUNDS,
-  DEFAULT_MODEL,
+  loadConfig,
   MAX_DEBATERS,
   MAX_ROUNDS_CAP,
-  apiKeyHint,
-  resolveApiKey,
-  type Debater,
-  type TranscriptEntry,
-} from "./debate.js";
+} from "./config.js";
+import { callDebater, type Debater, type TranscriptEntry } from "./debate.js";
+import { PROVIDER_NAMES, providerKeyEnv, resolveKey } from "./providers.js";
 
-const server = new McpServer({ name: "kontra", version: "0.1.0" });
+const server = new McpServer({ name: "kontra", version: "0.2.0" });
 
-const debaterSchema = z.object({
-  name: z.string().min(1).describe("short unique label for this voice in the transcript"),
-  persona: z
-    .string()
-    .min(1)
-    .describe("how this voice thinks and argues, e.g. 'a cautious risk analyst'"),
-  model: z
-    .string()
-    .optional()
-    .describe(`Anthropic model id for this voice; defaults to ${DEFAULT_MODEL}`),
+const debaterInputSchema = z.object({
+  name: z.string().min(1).describe("short unique label for this voice"),
+  persona: z.string().min(1).describe("how this voice thinks and argues, e.g. 'a cautious risk analyst'"),
+  provider: z.enum(PROVIDER_NAMES as [string, ...string[]]).optional().describe("ai provider; defaults to anthropic"),
+  model: z.string().optional().describe("model id for this provider; defaults to the provider's default"),
 });
 
-function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
+function jsonResult(value: unknown, isError = false) {
+  return { content: [{ type: "text" as const, text: JSON.stringify(value, null, 2) }], isError };
+}
+
+function textResult(text: string, isError = false) {
+  return { content: [{ type: "text" as const, text }], isError };
+}
+
+/** Setup instructions the assistant relays to the user when a key is missing. */
+function onboarding(providers: string[]): string {
+  const keyLines = providers.map((p) => `  - ${p}: ${providerKeyEnv(p)}`).join("\n");
+  const example = providerKeyEnv(providers[0]);
+  return [
+    "Kontra needs an API key before it can run. Ask the user to add it.",
+    "",
+    "Set the key(s) for the configured debaters in your MCP client config, then restart the client:",
+    keyLines,
+    "",
+    "Example (Claude Desktop or Claude Code):",
+    '  "kontra": {',
+    '    "command": "npx",',
+    '    "args": ["-y", "kontra-mcp"],',
+    `    "env": { "${example}": "your-key-here" }`,
+    "  }",
+    "",
+    "The key stays in the user's own config and is never sent through the chat.",
+  ].join("\n");
 }
 
 server.registerTool(
@@ -38,20 +56,66 @@ server.registerTool(
   {
     title: "Debate status",
     description:
-      "Show the default debaters, the model and round limits, and whether the Anthropic API key is set. " +
+      "Show the saved debate setup (debaters, providers, models, round limit) and whether each provider's API key is set. " +
       "Call this to confirm setup or when the user asks who is in the debate.",
     inputSchema: {},
   },
   async () => {
-    const status = {
-      api_key: resolveApiKey() ? "resolved" : `missing (${apiKeyHint})`,
-      default_model: DEFAULT_MODEL,
-      max_debaters: MAX_DEBATERS,
-      default_max_rounds: DEFAULT_MAX_ROUNDS,
-      max_rounds_cap: MAX_ROUNDS_CAP,
-      default_debaters: DEFAULT_DEBATERS,
-    };
-    return { content: [{ type: "text", text: JSON.stringify(status, null, 2) }] };
+    const config = loadConfig();
+    const debaters = config.debaters.map((d) => ({
+      ...d,
+      key: resolveKey(d.provider).key ? "set" : `missing (${providerKeyEnv(d.provider)})`,
+    }));
+    return jsonResult({
+      ready: config.debaters.every((d) => resolveKey(d.provider).key),
+      max_rounds: config.max_rounds,
+      debaters,
+      limits: { max_debaters: MAX_DEBATERS, max_rounds_cap: MAX_ROUNDS_CAP },
+      providers: PROVIDER_NAMES,
+      config_file: configLocation(),
+    });
+  }
+);
+
+server.registerTool(
+  "configure_debate",
+  {
+    title: "Configure the debate",
+    description:
+      "Set and SAVE the debate setup. The settings persist across sessions until changed. " +
+      "Use this whenever the user wants to change who debates (their personalities, how many up to " +
+      `${MAX_DEBATERS}, which provider and model each uses) or the round limit (up to ${MAX_ROUNDS_CAP}). ` +
+      `Providers: ${PROVIDER_NAMES.join(", ")}. Pass only the fields you want to change.`,
+    inputSchema: {
+      debaters: z
+        .array(debaterInputSchema)
+        .min(1)
+        .max(MAX_DEBATERS)
+        .optional()
+        .describe("replace the full set of debaters"),
+      max_rounds: z.number().int().optional().describe("safety cap on rounds"),
+    },
+  },
+  async ({ debaters, max_rounds }) => {
+    if (debaters === undefined && max_rounds === undefined) {
+      return textResult("Nothing to change. Pass debaters and/or max_rounds.", true);
+    }
+    let config;
+    try {
+      config = applyConfig({ debaters, max_rounds });
+    } catch (err) {
+      return textResult(err instanceof Error ? err.message : String(err), true);
+    }
+    const missing = [...new Set(config.debaters.map((d) => d.provider))].filter(
+      (p) => !resolveKey(p).key
+    );
+    return jsonResult({
+      saved: true,
+      config_file: configLocation(),
+      max_rounds: config.max_rounds,
+      debaters: config.debaters,
+      keys_needed: missing.map((p) => providerKeyEnv(p)),
+    });
   }
 );
 
@@ -60,13 +124,13 @@ server.registerTool(
   {
     title: "Challenge my position",
     description:
-      "Present your position to kontra's debaters and run a discussion before you answer. " +
+      "Present your position to the saved debaters and run a discussion before you answer. " +
       'When the user has activated kontra mode (e.g. said "kontra mode on"), ALWAYS run this loop before answering substantive questions. ' +
       "The loop: (1) call with your position; (2) answer the debaters' questions directly, respond to their specific points, ask questions back where their objections are ambiguous, " +
       "then call again with the FULL transcript (debater replies under their names, your own turns as speaker 'host'); " +
       "(3) keep going for as many rounds as the debate needs. The 'status' field is 'settled' once every debater has nothing new to add (or the round cap is hit); never synthesize while it is 'continue'. " +
-      "If the user specifies the debaters (their personalities, how many, which models) or a round limit, pass them via `debaters` and `max_rounds`; otherwise sensible defaults are used. Keep `debaters` the same across rounds of one debate. " +
-      "In your final reply: show how the discussion evolved, the key disagreements and how they resolved, then your final answer.",
+      "If the result is an onboarding message about a missing API key, relay it to the user and stop; do not retry until they confirm the key is set. " +
+      "To change the debaters or round limit, use configure_debate (it saves). Follow the 'instruction' field in the result for how to format your final reply.",
     inputSchema: {
       topic: z.string().describe("the user's question, restated"),
       position: z.string().describe("the host's current argument or answer"),
@@ -74,51 +138,27 @@ server.registerTool(
         .array(z.object({ speaker: z.string(), text: z.string() }))
         .optional()
         .describe("prior rounds in order; debater replies under their names, your turns as 'host'"),
-      debaters: z
-        .array(debaterSchema)
-        .min(1)
-        .max(MAX_DEBATERS)
-        .optional()
-        .describe("the debaters for this debate; omit to use the default single contrarian"),
-      max_rounds: z
-        .number()
-        .int()
-        .optional()
-        .describe(`safety cap on rounds (default ${DEFAULT_MAX_ROUNDS}, max ${MAX_ROUNDS_CAP})`),
     },
   },
-  async ({ topic, position, transcript, debaters, max_rounds }) => {
-    const apiKey = resolveApiKey();
-    if (!apiKey) {
-      return {
-        content: [{ type: "text", text: `No Anthropic API key. ${apiKeyHint}.` }],
-        isError: true,
-      };
+  async ({ topic, position, transcript }) => {
+    const config = loadConfig();
+    const roster: Debater[] = config.debaters;
+
+    // If no debater can run because its key is unset, prompt for setup instead of failing.
+    if (roster.every((d) => !resolveKey(d.provider).key)) {
+      const missing = [...new Set(roster.map((d) => d.provider))];
+      return textResult(onboarding(missing), true);
     }
 
-    const roster: Debater[] = (debaters ?? DEFAULT_DEBATERS).map((d) => ({
-      name: d.name,
-      persona: d.persona,
-      model: d.model ?? DEFAULT_MODEL,
-    }));
-
-    const names = roster.map((d) => d.name);
-    if (new Set(names).size !== names.length) {
-      return {
-        content: [{ type: "text", text: "Debater names must be unique." }],
-        isError: true,
-      };
-    }
-
-    const cap = clamp(max_rounds ?? DEFAULT_MAX_ROUNDS, 1, MAX_ROUNDS_CAP);
+    const cap = config.max_rounds;
     const priorRounds: TranscriptEntry[] = transcript ?? [];
-    const nameSet = new Set(names);
+    const nameSet = new Set(roster.map((d) => d.name));
     const priorDebaterTurns = priorRounds.filter((e) => nameSet.has(e.speaker)).length;
     const round = Math.floor(priorDebaterTurns / roster.length) + 1;
     const finalRound = round >= cap;
 
     const responses = await Promise.all(
-      roster.map((d) => callDebater(d, apiKey, topic, position, priorRounds, finalRound))
+      roster.map((d) => callDebater(d, topic, position, priorRounds, finalRound))
     );
 
     const answered = responses.filter((r) => "debate" in r);
@@ -126,26 +166,26 @@ server.registerTool(
       finalRound || (answered.length > 0 && answered.every((r) => r.debate === "settled"));
 
     const instruction = settled
-      ? "The debate is settled. Synthesize now: show how the discussion evolved, the key disagreements and their resolution, then your final answer."
+      ? [
+          "The debate is settled. Reply to the user with a SHORT, skimmable synthesis (aim for under 150 words), in this exact structure:",
+          "",
+          "**Verdict** - one sentence answering the question.",
+          "**Crux** - 1 to 3 bullets: the key disagreement(s) and how each resolved.",
+          "**Shift** - one line: what changed your view, or 'Position held.'",
+          "**Bottom line** - one or two sentences of concrete advice.",
+          "",
+          "No preamble, no restating the question, no filler. Keep every line tight.",
+        ].join("\n")
       : "The debate continues. Answer the debaters' questions and points directly (you may ask questions back), then call challenge again with the full transcript. Do not synthesize yet.";
 
     const allFailed = responses.every((r) => "error" in r);
-    return {
-      content: [
-        {
-          type: "text",
-          text: JSON.stringify(
-            { round, max_rounds: cap, status: settled ? "settled" : "continue", responses, instruction },
-            null,
-            2
-          ),
-        },
-      ],
-      isError: allFailed,
-    };
+    return jsonResult(
+      { round, max_rounds: cap, status: settled ? "settled" : "continue", responses, instruction },
+      allFailed
+    );
   }
 );
 
 const transport = new StdioServerTransport();
 await server.connect(transport);
-console.error(`kontra mcp server running on stdio (default model ${DEFAULT_MODEL})`);
+console.error("kontra mcp server running on stdio");

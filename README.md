@@ -1,8 +1,8 @@
 # Kontra
 
-Kontra adds a challenger to your AI chat. You take a position, and one or more AI debaters push back. They ask questions, concede good points, and argue until the debate is settled. Then your assistant sums up both sides and gives you a final answer.
+Kontra adds a challenger to your AI chat. You take a position, and one or more AI debaters push back. They ask questions, concede good points, and argue until the debate is settled. Then your assistant gives you a short, clear summary and a final answer.
 
-It runs as an MCP server. You bring your own Anthropic API key.
+It runs as an MCP server. You bring your own API key.
 
 ## How it works
 
@@ -10,13 +10,13 @@ It runs as an MCP server. You bring your own Anthropic API key.
 2. Your assistant writes its position and sends it to the debaters.
 3. Each debater replies in character with a stance and either "keep going" or "settled".
 4. Your assistant answers their points and runs more rounds until everyone is settled.
-5. Your assistant shows the debate and gives a final answer.
+5. Your assistant replies with a tight summary: the verdict, the crux, what changed, and the bottom line.
 
 The debate runs for as many rounds as it needs. A round limit stops it from running forever.
 
 ## Setup
 
-You need Node 18 or newer and an Anthropic API key.
+You need Node 18 or newer and at least one API key.
 
 Add Kontra to your MCP client config (for example Claude Desktop or Claude Code):
 
@@ -32,7 +32,11 @@ Add Kontra to your MCP client config (for example Claude Desktop or Claude Code)
 }
 ```
 
-Restart your client. Your key stays in your own config and is never sent through the chat.
+Restart your client. That is it. Out of the box you get one debater (a ruthless contrarian on Claude Opus 4.8).
+
+If you forget the key, Kontra tells your assistant exactly what to add, so you get prompted right in the chat.
+
+Your keys stay in your own config and are never sent through the chat.
 
 ## Use it
 
@@ -40,25 +44,40 @@ Say "kontra mode on" and ask something:
 
 > kontra mode on. Should we rewrite the service in Rust or stay on Go?
 
-Want to shape the debate? Just say so in plain words:
+Want to change the setup? Just ask in plain words. Your changes are saved and used for every debate after that:
 
-> kontra mode on. Use three debaters: a security engineer, a product lead, and a cost analyst. Max 4 rounds.
+> Set up three debaters: a security engineer on Claude, a product lead on GPT, and a cost analyst on Gemini. Max 4 rounds.
 
-You can set:
+You can set and save:
 
-| What | How |
+| What | Example |
 | --- | --- |
-| Personalities | Describe each debater you want |
-| Number of debaters | Ask for as many as you need (up to 5) |
-| Models | Name an Anthropic model for a debater |
-| Max rounds | Set a limit (up to 12) |
+| Personalities | "make the second one a blunt CFO" |
+| Number of debaters | "add a third debater" (up to 5) |
+| Provider and model | "put the analyst on gpt-4o" |
+| Max rounds | "cap it at 3 rounds" (up to 12) |
 
-Your assistant turns these requests into the right settings. You never touch the tools directly.
+## Providers
+
+Pick any debater's provider. Set the matching key in your config.
+
+| Provider | API key | Example models |
+| --- | --- | --- |
+| anthropic | `ANTHROPIC_API_KEY` | claude-opus-4-8 (default), claude-sonnet-4-6 |
+| openai | `OPENAI_API_KEY` | gpt-4o, gpt-4o-mini |
+| google | `GEMINI_API_KEY` | gemini-1.5-pro, gemini-1.5-flash |
 
 ## Tools
 
-- `debate_status`: shows the default debaters, models, round limits, and whether your key is set.
-- `challenge`: runs one round of debate. Your assistant calls this for you.
+- `debate_status`: shows your saved debaters, models, round limit, and which keys are set.
+- `configure_debate`: changes and saves the setup.
+- `challenge`: runs one round of debate.
+
+Your assistant calls these for you. You just talk to it.
+
+## Where settings are saved
+
+Kontra saves your setup to `~/.kontra/config.json`. Point it somewhere else with the `KONTRA_CONFIG` environment variable.
 
 ## Develop
 
