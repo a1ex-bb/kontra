@@ -13,7 +13,7 @@ import {
 import { callDebater, type Debater, type TranscriptEntry } from "./debate.js";
 import { PROVIDER_NAMES, providerKeyEnv, resolveKey } from "./providers.js";
 
-const server = new McpServer({ name: "kontra", version: "0.2.5" });
+const server = new McpServer({ name: "kontra", version: "0.2.6" });
 
 const debaterInputSchema = z.object({
   name: z.string().min(1).describe("short unique label for this voice"),
@@ -194,13 +194,13 @@ server.registerTool(
             "No preamble and no restating the question.",
           ].join("\n")
         : [
-            "The debate continues. Before the next round, show the user a short, well-structured recap of what just happened, then continue.",
+            "The debate continues. Hard requirement: you MUST begin your reply with a recap of this round, written for the user. Write it before you answer any point and before you call any tool. Never skip it.",
             "",
-            "Recap shape:",
-            "- a one-line header for the round (for example 'Round 1').",
-            "- one tight bullet per key point or question this round raised, attributed by stance or substance, never by debater name.",
+            "Recap format:",
+            "- A one-line header naming the round (for example 'Round 1').",
+            "- Then 2 to 4 bullets, one per point or question raised this round. Each bullet states the actual argument and the reasoning behind it in a single sentence, enough to give real insight, not just a label. Attribute by stance or substance, never by debater name.",
             "",
-            "After the recap, answer those points directly (you may ask questions back), then call challenge again with the full transcript. Keep the recap crisp and skimmable. Do not write the final synthesis yet.",
+            "Keep the whole recap under about 80 words. After it, answer the points directly (you may ask questions back), then call challenge again with the full transcript. Do not write the final synthesis yet.",
           ].join("\n");
 
     return jsonResult({ round, max_rounds: cap, status, responses, instruction }, allFailed);
