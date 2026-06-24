@@ -1,0 +1,48 @@
+{
+  "name": "kontra-mcp",
+  "version": "0.1.0",
+  "description": "An MCP server that adds AI challengers to your chat. You take a position, they debate it, your assistant synthesizes.",
+  "type": "module",
+  "bin": {
+    "kontra-mcp": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "inspect": "npx @modelcontextprotocol/inspector node dist/index.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "debate",
+    "claude",
+    "anthropic"
+  ],
+  "author": "a1ex-bb",
+  "license": "MIT",
+  "homepage": "https://github.com/a1ex-bb/kontra#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/a1ex-bb/kontra.git"
+  },
+  "bugs": {
+    "url": "https://github.com/a1ex-bb/kontra/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "typescript": "^5.6.0"
+  }
+}
