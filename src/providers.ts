@@ -16,7 +16,9 @@ interface ProviderDef {
   complete: (req: CompletionRequest) => Promise<string>;
 }
 
-const MAX_TOKENS = 1024;
+// A ceiling, not a target. Kept generous so reasoning models (which spend
+// hidden tokens before the visible reply) do not get truncated to empty.
+const MAX_TOKENS = 2048;
 
 /** An HTTP error that carries the status code so callers can give a friendly hint. */
 export class HttpError extends Error {

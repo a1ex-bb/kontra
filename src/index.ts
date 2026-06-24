@@ -13,7 +13,7 @@ import {
 import { callDebater, type Debater, type TranscriptEntry } from "./debate.js";
 import { PROVIDER_NAMES, providerKeyEnv, resolveKey } from "./providers.js";
 
-const server = new McpServer({ name: "kontra", version: "0.2.1" });
+const server = new McpServer({ name: "kontra", version: "0.2.2" });
 
 const debaterInputSchema = z.object({
   name: z.string().min(1).describe("short unique label for this voice"),
@@ -140,7 +140,7 @@ server.registerTool(
       'When the user has activated kontra mode (e.g. said "kontra mode on"), ALWAYS run this loop before answering substantive questions. ' +
       "The loop: (1) call with your position; (2) answer the debaters' questions directly, respond to their specific points, ask questions back where their objections are ambiguous, " +
       "then call again with the FULL transcript (debater replies under their names, your own turns as speaker 'host'); " +
-      "(3) keep going for as many rounds as the debate needs. The 'status' field is 'settled' once every debater has nothing new to add (or the round cap is hit); never synthesize while it is 'continue'. " +
+      "(3) keep going for as many rounds as the debate needs. The 'status' field is 'settled' once every debater has nothing new to add (or the round cap is hit), or 'error' if every debater failed; never synthesize while it is 'continue'. " +
       "If the result is an onboarding message about a missing API key, relay it to the user and stop; do not retry until they confirm the key is set. " +
       "To change the debaters or round limit, use configure_debate (it saves). Follow the 'instruction' field in the result for how to format your final reply.",
     inputSchema: {
@@ -174,27 +174,28 @@ server.registerTool(
     );
 
     const answered = responses.filter((r) => "debate" in r);
-    const settled =
-      finalRound || (answered.length > 0 && answered.every((r) => r.debate === "settled"));
-
-    const instruction = settled
-      ? [
-          "The debate is settled. Reply to the user with a SHORT, skimmable synthesis (aim for under 150 words), in this exact structure:",
-          "",
-          "**Verdict** - one sentence answering the question.",
-          "**Crux** - 1 to 3 bullets: the key disagreement(s) and how each resolved.",
-          "**Shift** - one line: what changed your view, or 'Position held.'",
-          "**Bottom line** - one or two sentences of concrete advice.",
-          "",
-          "No preamble, no restating the question, no filler. Keep every line tight.",
-        ].join("\n")
-      : "The debate continues. Answer the debaters' questions and points directly (you may ask questions back), then call challenge again with the full transcript. Do not synthesize yet.";
-
     const allFailed = responses.every((r) => "error" in r);
-    return jsonResult(
-      { round, max_rounds: cap, status: settled ? "settled" : "continue", responses, instruction },
-      allFailed
-    );
+    const settled =
+      !allFailed &&
+      (finalRound || (answered.length > 0 && answered.every((r) => r.debate === "settled")));
+    const status = allFailed ? "error" : settled ? "settled" : "continue";
+
+    const instruction = allFailed
+      ? "Every debater failed to respond. Do not retry automatically. Tell the user what went wrong (see the error field on each debater) and how to fix it, then stop."
+      : settled
+        ? [
+            "The debate is settled. Reply to the user with a SHORT, skimmable synthesis (aim for under 150 words), in this exact structure:",
+            "",
+            "**Verdict** - one sentence answering the question.",
+            "**Crux** - 1 to 3 bullets: the key disagreement(s) and how each resolved.",
+            "**Shift** - one line: what changed your view, or 'Position held.'",
+            "**Bottom line** - one or two sentences of concrete advice.",
+            "",
+            "No preamble, no restating the question, no filler. Keep every line tight.",
+          ].join("\n")
+        : "The debate continues. Answer the debaters' questions and points directly (you may ask questions back), then call challenge again with the full transcript. Do not synthesize yet.";
+
+    return jsonResult({ round, max_rounds: cap, status, responses, instruction }, allFailed);
   }
 );
 
