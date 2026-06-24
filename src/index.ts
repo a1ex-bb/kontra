@@ -13,7 +13,7 @@ import {
 import { callDebater, type Debater, type TranscriptEntry } from "./debate.js";
 import { PROVIDER_NAMES, providerKeyEnv, resolveKey } from "./providers.js";
 
-const server = new McpServer({ name: "kontra", version: "0.2.2" });
+const server = new McpServer({ name: "kontra", version: "0.2.3" });
 
 const debaterInputSchema = z.object({
   name: z.string().min(1).describe("short unique label for this voice"),
@@ -53,7 +53,7 @@ function onboarding(providers: string[]): string {
     "Example (Claude Desktop, Claude Code, Cursor, and other MCP clients):",
     '  "kontra": {',
     '    "command": "npx",',
-    '    "args": ["-y", "kontra-mcp"],',
+    '    "args": ["-y", "mcp-kontra"],',
     `    "env": { "${primaryEnv}": "your-key-here" }`,
     "  }",
     "",

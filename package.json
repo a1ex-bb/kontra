@@ -1,10 +1,10 @@
 {
-  "name": "kontra-mcp",
-  "version": "0.2.2",
+  "name": "mcp-kontra",
+  "version": "0.2.3",
   "description": "An MCP server that adds AI challengers to your chat. Configure debaters across Anthropic, OpenAI, and Google, debate your position, and get a crisp synthesis. Settings persist; bring your own keys.",
   "type": "module",
   "bin": {
-    "kontra-mcp": "dist/index.js"
+    "mcp-kontra": "dist/index.js"
   },
   "main": "dist/index.js",
   "files": [

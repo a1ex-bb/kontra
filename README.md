@@ -36,7 +36,7 @@ Kontra is a standard MCP server, so it works in any MCP client. You need Node 18
   "mcpServers": {
     "kontra": {
       "command": "npx",
-      "args": ["-y", "kontra-mcp"],
+      "args": ["-y", "mcp-kontra"],
       "env": { "ANTHROPIC_API_KEY": "sk-ant-..." }
     }
   }
