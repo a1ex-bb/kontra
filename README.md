@@ -76,25 +76,25 @@ Say "kontra mode on" and ask a question. To change the debate, just ask in plain
 
 ## Examples
 
-A few realistic prompts, across different kinds of work. The multi-debater ones show how you can set up a custom panel.
+Real prompts, from quick gut-checks to bigger calls. Use the default challenger, or set up your own panel.
 
 ### Product and engineering
 
-> kontra mode on. Set up three debaters: a paranoid security engineer, a ship-it product manager, and a user-obsessed designer. Should we launch onboarding without the email verification step to cut signup friction?
+> kontra mode on. Planning to fix the slow dashboard with a 60-second cache. Before I build it, what am I missing?
 
-> kontra mode on. I'm about to add a nullable column and backfill it in the same migration to keep it simple. Anything I'm missing?
+> kontra mode on. Going to mark this flaky test as skipped so CI stops blocking the team. Talk me out of it.
 
 ### Commercial
 
-> kontra mode on. Debate this as a hard-nosed CFO and a growth-obsessed head of sales, two rounds max: should we give a 500-seat prospect a free 3-month pilot to land the logo?
+> kontra mode on. A customer about to churn asked for 20% off to stay, and I want to say yes. Argue the other side.
 
-> kontra mode on. I'm opening my cold outreach with "I hope this email finds you well." Here's the rest. Improve it.
+> kontra mode on. Have a skeptical CFO and a growth-minded sales lead argue it out: should we offer net-60 terms to land a big deal?
 
 ### Personal
 
-> kontra mode on. I'm going to buy a $1,500 espresso machine because I spend too much on coffee out. Sensible?
+> kontra mode on. About to sign a 12-month lease at 40% of my take-home. Push back before I commit.
 
-> kontra mode on. Set up an optimist and a skeptic. Should I move to a new city for a fresh start?
+> kontra mode on. Here's the message I drafted to a friend who keeps cancelling on me. What will I wish I'd changed?
 
 ## Providers
 

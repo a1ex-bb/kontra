@@ -13,7 +13,7 @@ import {
 import { callDebater, type Debater, type TranscriptEntry } from "./debate.js";
 import { PROVIDER_NAMES, providerKeyEnv, resolveKey } from "./providers.js";
 
-const server = new McpServer({ name: "kontra", version: "0.2.6" });
+const server = new McpServer({ name: "kontra", version: "0.2.7" });
 
 const debaterInputSchema = z.object({
   name: z.string().min(1).describe("short unique label for this voice"),
@@ -194,13 +194,13 @@ server.registerTool(
             "No preamble and no restating the question.",
           ].join("\n")
         : [
-            "The debate continues. Hard requirement: you MUST begin your reply with a recap of this round, written for the user. Write it before you answer any point and before you call any tool. Never skip it.",
+            "The debate continues. Hard requirement: begin your reply with a tiny recap of this round for the user, before you answer anything or call any tool. Never skip it.",
             "",
-            "Recap format:",
-            "- A one-line header naming the round (for example 'Round 1').",
-            "- Then 2 to 4 bullets, one per point or question raised this round. Each bullet states the actual argument and the reasoning behind it in a single sentence, enough to give real insight, not just a label. Attribute by stance or substance, never by debater name.",
+            "Keep it very short and skimmable, so someone with no context can follow it at a glance:",
+            "- A bold one-line header with the round number.",
+            "- 1 to 3 bullets, one per point raised, each a single plain clause of about 10 words. No debater names, no rambling sentences.",
             "",
-            "Keep the whole recap under about 80 words. After it, answer the points directly (you may ask questions back), then call challenge again with the full transcript. Do not write the final synthesis yet.",
+            "Hold the whole recap to roughly 40 words. Then answer the points (you may ask questions back) and call challenge again with the full transcript. Do not write the final synthesis yet.",
           ].join("\n");
 
     return jsonResult({ round, max_rounds: cap, status, responses, instruction }, allFailed);

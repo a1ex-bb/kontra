@@ -1,7 +1,7 @@
 {
   "name": "mcp-kontra",
-  "version": "0.2.6",
-  "description": "An MCP server that adds AI challengers to your chat. Configure debaters across Anthropic, OpenAI, and Google, debate your position, and get a crisp synthesis. Settings persist; bring your own keys.",
+  "version": "0.2.7",
+  "description": "An MCP server that drops a challenger into your AI chat. State your position and it argues the other side, across one or more debaters on Anthropic, OpenAI, or Google, then your assistant gives you a tested answer. Bring your own keys.",
   "type": "module",
   "bin": {
     "mcp-kontra": "dist/index.js"
