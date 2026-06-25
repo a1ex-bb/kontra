@@ -13,7 +13,7 @@ import {
 import { callDebater, type Debater, type TranscriptEntry } from "./debate.js";
 import { PROVIDER_NAMES, providerKeyEnv, resolveKey } from "./providers.js";
 
-const server = new McpServer({ name: "kontra", version: "0.2.7" });
+const server = new McpServer({ name: "kontra", version: "0.2.8" });
 
 const debaterInputSchema = z.object({
   name: z.string().min(1).describe("short unique label for this voice"),
@@ -194,13 +194,18 @@ server.registerTool(
             "No preamble and no restating the question.",
           ].join("\n")
         : [
-            "The debate continues. Hard requirement: begin your reply with a tiny recap of this round for the user, before you answer anything or call any tool. Never skip it.",
+            "The debate continues. Hard requirement: begin your reply with a short recap of where each side now stands, before you answer anything or call any tool. Never skip it, and never let it run long.",
             "",
-            "Keep it very short and skimmable, so someone with no context can follow it at a glance:",
+            "Recap the viewpoints, not every point, so the reader sees both sides at a glance:",
             "- A bold one-line header with the round number.",
-            "- 1 to 3 bullets, one per point raised, each a single plain clause of about 10 words. No debater names, no rambling sentences.",
+            "- One short line per side, each opening with a plain label for that side, then its core argument in a few words. At most about 12 words per line. No debater names.",
             "",
-            "Hold the whole recap to roughly 40 words. Then answer the points (you may ask questions back) and call challenge again with the full transcript. Do not write the final synthesis yet.",
+            "Example, and match this length:",
+            "**Round 1**",
+            "- Your position: ship the cache now to fix the slow dashboard.",
+            "- The pushback: caching hides the real cause and risks stale data.",
+            "",
+            "Then answer the points (you may ask questions back) and call challenge again with the full transcript. Do not write the final synthesis yet.",
           ].join("\n");
 
     return jsonResult({ round, max_rounds: cap, status, responses, instruction }, allFailed);

@@ -9,7 +9,7 @@ It runs as an MCP server. You bring your own API keys.
 1. You turn on kontra mode and ask a question.
 2. Your assistant writes its position and sends it to the debaters.
 3. Each debater replies in character with a stance and either "keep going" or "settled".
-4. After each round your assistant recaps the points raised, answers them, and runs another round, until the debate settles.
+4. After each round your assistant recaps where each side stands, answers the challenge, and runs another round, until the debate settles.
 5. Your assistant replies with a short, structured rundown: the positions and their strongest arguments, where the debate lands, and a recommendation.
 
 The debate runs for as many rounds as it needs. A round limit stops it from running forever.

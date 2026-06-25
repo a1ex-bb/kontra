@@ -1,6 +1,6 @@
 {
   "name": "mcp-kontra",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "An MCP server that drops a challenger into your AI chat. State your position and it argues the other side, across one or more debaters on Anthropic, OpenAI, or Google, then your assistant gives you a tested answer. Bring your own keys.",
   "type": "module",
   "bin": {
