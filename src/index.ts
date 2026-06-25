@@ -13,7 +13,7 @@ import {
 import { callDebater, type Debater, type TranscriptEntry } from "./debate.js";
 import { PROVIDER_NAMES, providerKeyEnv, resolveKey } from "./providers.js";
 
-const server = new McpServer({ name: "kontra", version: "0.2.8" });
+const server = new McpServer({ name: "kontra", version: "0.2.9" });
 
 const debaterInputSchema = z.object({
   name: z.string().min(1).describe("short unique label for this voice"),
@@ -198,11 +198,11 @@ server.registerTool(
             "",
             "Recap the viewpoints, not every point, so the reader sees both sides at a glance:",
             "- A bold one-line header with the round number.",
-            "- One short line per side, each opening with a plain label for that side, then its core argument in a few words. At most about 12 words per line. No debater names.",
+            "- One short line per side, each opening with a short label for that side's stance (for example 'The case for' and 'The pushback'), then its core argument in a few words. At most about 12 words per line. No debater names. Do not label the defended side 'your position'; it is the assistant's working stance, so use 'you' or 'your' only if you specifically mean a position the user themselves stated.",
             "",
             "Example, and match this length:",
             "**Round 1**",
-            "- Your position: ship the cache now to fix the slow dashboard.",
+            "- The case for: ship the cache now to fix the slow dashboard.",
             "- The pushback: caching hides the real cause and risks stale data.",
             "",
             "Then answer the points (you may ask questions back) and call challenge again with the full transcript. Do not write the final synthesis yet.",
